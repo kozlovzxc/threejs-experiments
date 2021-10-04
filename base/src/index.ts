@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import fontUrl from "url:three/examples/fonts/helvetiker_regular.typeface.json"
 import * as dat from "dat.gui"
 import { TextureLoader } from "three"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 
 /**
  * Base
@@ -123,6 +124,15 @@ fontLoader.load(fontUrl, (newFont) => {
   renderText()
 })
 
+// Burger
+
+const gltfLoader = new GLTFLoader()
+gltfLoader.load('/static/models/burger.glb', (model) => {
+  const burger = model.scene
+  burger.position.set(2, 0, 0)
+  scene.add(model.scene)
+})
+
 /**
  * Lights
  */
@@ -131,7 +141,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
 scene.add(ambientLight)
 
 // Directional
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5)
 directionalLight.castShadow = true
 directionalLight.shadow.mapSize.set(1024, 1024)
 directionalLight.shadow.camera.far = 15
