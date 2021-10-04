@@ -2,6 +2,7 @@ import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import fontUrl from "url:three/examples/fonts/helvetiker_regular.typeface.json"
 import * as dat from "dat.gui"
+import { TextureLoader } from "three"
 
 /**
  * Base
@@ -9,6 +10,9 @@ import * as dat from "dat.gui"
 // Debug
 const debug = {
   floorColor: "#5e51b3",
+  ball: {
+    displacementScale: 0.1,
+  },
 }
 const gui = new dat.GUI()
 
@@ -20,6 +24,8 @@ const scene = new THREE.Scene()
 
 const axesHelper = new THREE.AxesHelper(20)
 scene.add(axesHelper)
+
+const textureLoader = new TextureLoader()
 
 /**
  * Objects
@@ -46,21 +52,51 @@ renderFloor()
 gui.addColor(debug, "floorColor").onFinishChange(renderFloor)
 
 // Ball
+const ballMap = textureLoader.load(
+  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_basecolor.jpg"
+)
+const ballAO = textureLoader.load(
+  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_ambientOcclusion.jpg"
+)
+const ballNormal = textureLoader.load(
+  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_normal.jpg"
+)
+const ballRoughness = textureLoader.load(
+  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_roughness.jpg"
+)
+const ballHeight = textureLoader.load(
+  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_height.png"
+)
+
 let ball: THREE.Mesh
 const renderBall = () => {
   if (ball != null) {
     scene.remove(ball)
   }
 
-  ball = new THREE.Mesh(
-    new THREE.SphereGeometry(1),
-    new THREE.MeshNormalMaterial()
-  )
+  const ballMaterial = new THREE.MeshStandardMaterial({
+    map: ballMap,
+    aoMap: ballAO,
+    normalMap: ballNormal,
+    normalScale: new THREE.Vector2(0.5, 0.5),
+    roughnessMap: ballRoughness,
+    displacementMap: ballHeight,
+    displacementScale: debug.ball.displacementScale,
+  })
+  const ballGeometry = new THREE.SphereGeometry(1, 100, 100)
+  ballGeometry.attributes.uv2 = ballGeometry.attributes.uv
+  ball = new THREE.Mesh(ballGeometry, ballMaterial)
   ball.position.set(0, 1, 0)
 
   scene.add(ball)
 }
 renderBall()
+gui
+  .add(debug.ball, "displacementScale")
+  .min(0)
+  .max(1)
+  .step(0.05)
+  .onFinishChange(renderBall)
 
 // Text
 let text: THREE.Mesh = undefined
@@ -142,7 +178,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 )
-camera.position.set(2, 2, 2)
+camera.position.set(0, 2, 7)
 scene.add(camera)
 
 // Controls
