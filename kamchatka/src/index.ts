@@ -1,10 +1,9 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import fontUrl from "url:three/examples/fonts/helvetiker_regular.typeface.json"
-import { TextureLoader } from "three"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { floor } from "./floor"
-import { globalGui } from "./gui"
+import { house } from "./house"
 
 /**
  * Base
@@ -26,34 +25,12 @@ const scene = new THREE.Scene()
 const axesHelper = new THREE.AxesHelper(20)
 scene.add(axesHelper)
 
-const textureLoader = new TextureLoader()
-
 /**
  * Objects
  */
 // Floor
 scene.add(floor)
-// const floor = THREE.Group
-// let earth: THREE.Mesh
-// const renderFloor = () => {
-//   if (earth != null) {
-//     scene.remove(earth)
-//   }
-//   earth = new THREE.Mesh(
-//     new THREE.PlaneGeometry(100, 100),
-//     new THREE.MeshStandardMaterial({
-//       color: debug.floorColor,
-//       metalness: 0,
-//       roughness: 0.5,
-//     })
-//   )
-//   earth.receiveShadow = true
-//   earth.rotation.x = -Math.PI * 0.5
-//   scene.add(earth)
-// }
-// renderFloor()
-// gui.addColor(debug, "floorColor").onFinishChange(renderFloor)
-
+scene.add(house)
 
 // Text
 let text: THREE.Mesh = undefined
@@ -64,7 +41,7 @@ let renderText = () => {
   let geometry = new THREE.TextBufferGeometry("Kamchatka 12", {
     font,
     size: 2,
-    height: 0.2,
+    height: 0.5,
     curveSegments: 5,
   })
   geometry.center()
@@ -141,7 +118,7 @@ const camera = new THREE.PerspectiveCamera(
   75,
   sizes.width / sizes.height,
   0.1,
-  100
+  200
 )
 camera.position.set(0, 2, 7)
 scene.add(camera)
