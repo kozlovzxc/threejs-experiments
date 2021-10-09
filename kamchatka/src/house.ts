@@ -8,20 +8,16 @@ const debug = {
   roofColor: "#4f7225",
 }
 
-export const house = new THREE.Group()
 let walls: THREE.Mesh<THREE.BoxBufferGeometry, THREE.MeshStandardMaterial>
 let roof: THREE.Mesh<THREE.ConeBufferGeometry, THREE.MeshStandardMaterial>
 
 const wallsGeometry = new THREE.BoxBufferGeometry(2, 1, 2)
 const roofGeometry = new THREE.ConeBufferGeometry(1.415, 1, 4)
 
-const renderHouse = () => {
-  if (walls != null) {
-    house.remove(walls)
-  }
-  if (roof != null) {
-    house.remove(roof)
-  }
+const references: THREE.Group[] = []
+
+export const getHouse = () => {
+  const house = new THREE.Group()
 
   const wallsMaterial = new THREE.MeshStandardMaterial({
     color: debug.wallsColor,
@@ -39,8 +35,16 @@ const renderHouse = () => {
 
   house.add(walls)
   house.add(roof)
-}
-renderHouse()
 
-gui.addColor(debug, "wallsColor").onFinishChange(renderHouse)
-gui.addColor(debug, "roofColor").onFinishChange(renderHouse)
+  references.push(house)
+  return house
+}
+
+const updateReferences = () => {
+    references.forEach((reference) => {
+        reference.copy(getHouse())
+    })
+}
+
+gui.addColor(debug, "wallsColor").onFinishChange(updateReferences)
+gui.addColor(debug, "roofColor").onFinishChange(updateReferences)

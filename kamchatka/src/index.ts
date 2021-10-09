@@ -3,7 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import fontUrl from "url:three/examples/fonts/helvetiker_regular.typeface.json"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { floor } from "./floor"
-import { house } from "./house"
+import { getHouse } from "./house"
 
 /**
  * Base
@@ -30,7 +30,7 @@ scene.add(axesHelper)
  */
 // Floor
 scene.add(floor)
-scene.add(house)
+scene.add(getHouse())
 
 // Text
 let text: THREE.Mesh = undefined
