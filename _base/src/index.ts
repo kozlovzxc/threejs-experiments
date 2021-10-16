@@ -127,7 +127,7 @@ fontLoader.load(fontUrl, (newFont) => {
 // Burger
 
 const gltfLoader = new GLTFLoader()
-gltfLoader.load('/static/models/burger.glb', (model) => {
+gltfLoader.load("/static/models/burger.glb", (model) => {
   const burger = model.scene
   burger.position.set(2, 0, 0)
   scene.add(model.scene)
