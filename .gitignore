@@ -3,3 +3,6 @@ node_modules
 # Parcel
 .parcel-cache
 dist
+
+# Code editors
+.idea
