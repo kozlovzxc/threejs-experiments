@@ -23,6 +23,7 @@ const diffColor = startColor.map(
   (_, index) => (endColor[index] - startColor[index]) / debug.items.number
 )
 const gui = new dat.GUI()
+gui.hide()
 
 // Canvas
 const canvas = document.getElementById("webgl")
@@ -104,18 +105,18 @@ controls.enableDamping = true
 
 // Food
 const rotationSpeed = 0.01
-const rotations = range(debug.items.number).map((_) => ({
+const objectConfig = range(debug.items.number).map((_) => ({
   x: (Math.random() - 0.5) * rotationSpeed,
   y: (Math.random() - 0.5) * rotationSpeed,
 }))
-let burgers: THREE.Group[] = []
-const bananas: THREE.Group[] = []
+let broccoliChunks: THREE.Group[] = []
+const meatChunks: THREE.Group[] = []
 ;(async () => {
   const radius = 20
 
   for (let i = 0; i < debug.items.number; i++) {
-    const banana = await getFood("meatCooked")
-    var [x, y, z] = new THREE.Vector3(
+    const meat = await getFood("meatCooked")
+    const [x, y, z] = new THREE.Vector3(
       Math.random() - 0.5,
       Math.random() - 0.5,
       Math.random() - 0.5
@@ -123,13 +124,15 @@ const bananas: THREE.Group[] = []
       .normalize()
       .multiplyScalar(Math.random() * radius + 1)
       .toArray()
-    banana.position.x = x
-    banana.position.y = y
-    banana.position.z = z
-    banana.rotation.x = Math.random() * Math.PI * 2
-    banana.rotation.y = Math.random() * Math.PI * 2
-    bananas.push(banana)
-    scene.add(banana)
+    meat.position.x = x
+    meat.position.y = y
+    meat.position.z = z
+    meat.rotation.x = Math.random() * Math.PI * 2
+    meat.rotation.y = Math.random() * Math.PI * 2
+    const scale = Math.random() * 2 + 0.5
+    meat.scale.set(scale, scale, scale)
+    meatChunks.push(meat)
+    scene.add(meat)
   }
 })()
 
@@ -155,11 +158,11 @@ const tick = () => {
   const deltaTime = elapsedTime - previousTime
   previousTime = elapsedTime
 
-  const objects = [...bananas, ...burgers]
+  const objects = [...meatChunks, ...broccoliChunks]
 
   objects.forEach((object, index) => {
-    object.rotation.x += rotations[index].x
-    // object.rotation.y += rotations[index].y
+    object.rotation.x += objectConfig[index].x
+    object.rotation.y += objectConfig[index].y
   })
 
   // Update controls
@@ -174,16 +177,17 @@ const tick = () => {
 
 tick()
 
-const timeout = 0.0001
+const timeout = 0.0005
 const timedTick = async () => {
-  const banana = bananas.pop()
+  const banana = meatChunks.pop()
   if (banana == null) return
-  const burger = await getFood("broccoli")
-  burger.position.copy(banana.position)
-  burger.rotation.copy(banana.rotation)
-  burgers = [burger, ...burgers]
+  const broccoli = await getFood("broccoli")
+  broccoli.position.copy(banana.position)
+  broccoli.rotation.copy(banana.rotation)
+    broccoli.scale.copy(banana.scale)
+  broccoliChunks = [broccoli, ...broccoliChunks]
   scene.remove(banana)
-  scene.add(burger)
+  scene.add(broccoli)
 
   scene.background = new THREE.Color().fromArray(
     (scene.background as THREE.Color)
