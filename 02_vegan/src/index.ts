@@ -2,14 +2,26 @@ import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import * as dat from "dat.gui"
 import { getFood } from "./food"
+import { range } from "../utils/array"
 
 /**
  * Base
  */
 // Debug
 const debug = {
-  backgroundColor: "#228176",
+  background: {
+    startColor: "#E76F51",
+    endColor: "#228176",
+  },
+  items: {
+    number: 500,
+  },
 }
+const startColor = new THREE.Color(debug.background.startColor).toArray()
+const endColor = new THREE.Color(debug.background.endColor).toArray()
+const diffColor = startColor.map(
+  (_, index) => (endColor[index] - startColor[index]) / debug.items.number
+)
 const gui = new dat.GUI()
 
 // Canvas
@@ -17,48 +29,10 @@ const canvas = document.getElementById("webgl")
 
 // Scene
 const scene = new THREE.Scene()
-scene.background = new THREE.Color(debug.backgroundColor)
-gui.addColor(debug, "backgroundColor").onFinishChange(() => {
-  scene.background = new THREE.Color(debug.backgroundColor)
-})
+scene.background = new THREE.Color(debug.background.startColor)
 
 // const axesHelper = new THREE.AxesHelper(20)
 // scene.add(axesHelper)
-
-/**
- * Objects
- */
-
-const generateDotWithinRadius = (radius: number) => {
-  const x = (Math.random() - 0.5) * radius
-  const y = (Math.random() - 0.5) * radius
-  const z = (Math.random() - 0.5) * Math.sqrt(radius * radius - x * x - y * y)
-  return [x, y, z]
-}
-
-// Burger
-;(async () => {
-  const radius = 10
-  const items = 1000
-
-  for (let i = 0; i < items; i++) {
-    const banana = await getFood("banana")
-    var [x, y, z] = new THREE.Vector3(
-      Math.random() - 0.5,
-      Math.random() - 0.5,
-      Math.random() - 0.5
-    )
-      .normalize()
-      .multiplyScalar(Math.random() * radius + 1)
-      .toArray()
-    banana.position.x = x
-    banana.position.y = y
-    banana.position.z = z
-    banana.rotation.x = Math.random() * Math.PI * 2
-    banana.rotation.y = Math.random() * Math.PI * 2
-    scene.add(banana)
-  }
-})()
 
 /**
  * Lights
@@ -115,7 +89,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 )
-camera.position.set(0, 2, 7)
+camera.position.set(10, 10, 10)
 scene.add(camera)
 
 // Controls
@@ -123,6 +97,41 @@ const controls = new OrbitControls(camera, canvas)
 controls.target.set(0, 0.75, 0)
 // Addes "weight" to camera movements
 controls.enableDamping = true
+
+/**
+ * Objects
+ */
+
+// Food
+const rotationSpeed = 0.01
+const rotations = range(debug.items.number).map((_) => ({
+  x: (Math.random() - 0.5) * rotationSpeed,
+  y: (Math.random() - 0.5) * rotationSpeed,
+}))
+let burgers: THREE.Group[] = []
+const bananas: THREE.Group[] = []
+;(async () => {
+  const radius = 20
+
+  for (let i = 0; i < debug.items.number; i++) {
+    const banana = await getFood("meatCooked")
+    var [x, y, z] = new THREE.Vector3(
+      Math.random() - 0.5,
+      Math.random() - 0.5,
+      Math.random() - 0.5
+    )
+      .normalize()
+      .multiplyScalar(Math.random() * radius + 1)
+      .toArray()
+    banana.position.x = x
+    banana.position.y = y
+    banana.position.z = z
+    banana.rotation.x = Math.random() * Math.PI * 2
+    banana.rotation.y = Math.random() * Math.PI * 2
+    bananas.push(banana)
+    scene.add(banana)
+  }
+})()
 
 /**
  * Renderer
@@ -146,6 +155,13 @@ const tick = () => {
   const deltaTime = elapsedTime - previousTime
   previousTime = elapsedTime
 
+  const objects = [...bananas, ...burgers]
+
+  objects.forEach((object, index) => {
+    object.rotation.x += rotations[index].x
+    // object.rotation.y += rotations[index].y
+  })
+
   // Update controls
   controls.update()
 
@@ -157,3 +173,24 @@ const tick = () => {
 }
 
 tick()
+
+const timeout = 0.0001
+const timedTick = async () => {
+  const banana = bananas.pop()
+  if (banana == null) return
+  const burger = await getFood("broccoli")
+  burger.position.copy(banana.position)
+  burger.rotation.copy(banana.rotation)
+  burgers = [burger, ...burgers]
+  scene.remove(banana)
+  scene.add(burger)
+
+  scene.background = new THREE.Color().fromArray(
+    (scene.background as THREE.Color)
+      .toArray()
+      .map((item, index) => item + diffColor[index])
+  )
+
+  setTimeout(timedTick, timeout)
+}
+setTimeout(timedTick, timeout)
