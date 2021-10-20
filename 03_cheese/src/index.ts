@@ -27,6 +27,7 @@ const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -0.982, 0), // m/s²
   allowSleep: true,
 })
+world.broadphase = new CANNON.SAPBroadphase(world)
 
 const defaultMaterial = new CANNON.Material("default")
 const defaultContactMaterial = new CANNON.ContactMaterial(
@@ -137,7 +138,7 @@ let renderText = () => {
   if (text != null) {
     scene.remove(text)
   }
-  let geometry = new THREE.TextBufferGeometry("Wanna some cheeeeese?", {
+  let geometry = new THREE.TextBufferGeometry("Cheeeeese?", {
     font,
     size: 1,
     height: 0.2,
@@ -146,7 +147,7 @@ let renderText = () => {
   geometry.center()
   const textMaterial = new THREE.MeshNormalMaterial()
   text = new THREE.Mesh(geometry, textMaterial)
-  text.position.set(0, 3, -3)
+  text.position.set(0, 3, -7)
   scene.add(text)
 }
 const fontLoader = new THREE.FontLoader()
@@ -213,7 +214,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 )
-camera.position.set(0, 4, 7)
+camera.position.set(0, 7, 10)
 scene.add(camera)
 
 // Controls
@@ -257,11 +258,15 @@ const tick = () => {
     void renderCheese()
   }
 
-  cheeseChunks.forEach(({ cheese, cheeseBoundariesBox, cheeseBody }) => {
+  cheeseChunks.forEach(({ cheese, cheeseBoundariesBox, cheeseBody }, index) => {
     cheese.position.copy(cheeseBody.position as any)
-    // who knows why :)
-    // cheese.position.y -= cheeseBoundariesBox.y
     cheese.quaternion.copy(cheeseBody.quaternion as any)
+
+    if (cheese.position.length() > 20) {
+      cheeseChunks.splice(index, 1)
+      scene.remove(cheese)
+      world.removeBody(cheeseBody)
+    }
   })
 
   // Update controls
