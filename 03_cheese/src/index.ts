@@ -105,6 +105,7 @@ const renderCheese = async () => {
   cheese.add(cheeseModel)
 
   const scale = Math.random() + 0.5
+  cheeseBoundariesBox.multiplyScalar(scale)
   cheese.scale.multiplyScalar(scale)
   cheese.position.set((Math.random() - 0.5) * 5, 2, (Math.random() - 0.5) * 5)
 
