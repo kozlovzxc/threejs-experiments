@@ -91,7 +91,7 @@ const cheeseChunks: Array<{
 }> = []
 const renderCheese = async () => {
   const gltf = await getFood("cheese", { metalness: 0.5 })
-  const cheeseModel = gltf.scene.clone()
+  const cheeseModel = gltf.scene
   const boundingBox = new THREE.Box3().setFromObject(cheeseModel)
   const cheeseBoundariesBox = new THREE.Vector3(
     boundingBox.max.x - boundingBox.min.x,
@@ -103,7 +103,7 @@ const renderCheese = async () => {
   cheese.add(cheeseModel)
 
   const scale = Math.random() + 0.5
-  cheese.scale.set(scale, scale, scale)
+  cheese.scale.multiplyScalar(scale)
   cheese.position.set((Math.random() - 0.5) * 5, 2, (Math.random() - 0.5) * 5)
 
   const cheeseBody = new CANNON.Body({
@@ -253,7 +253,7 @@ const tick = () => {
   world.step(timeStep, deltaTime, 3)
 
   const cheeseDeltaTime = elapsedTime - cheeseLastCreatedTime
-  if (cheeseDeltaTime > 0.25) {
+  if (cheeseDeltaTime > 0.2 && cheeseChunks.length < 100) {
     cheeseLastCreatedTime = elapsedTime
     void renderCheese()
   }
