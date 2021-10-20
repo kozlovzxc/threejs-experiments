@@ -18,7 +18,7 @@ const debug = {
   },
 }
 const gui = new dat.GUI()
-if (debug.enabled) {
+if (!debug.enabled) {
   gui.hide()
 }
 
