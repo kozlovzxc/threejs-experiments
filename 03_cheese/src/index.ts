@@ -174,10 +174,12 @@ directionalLight.shadow.camera.right = 7
 directionalLight.shadow.camera.bottom = -7
 directionalLight.position.set(5, 5, 5)
 scene.add(directionalLight)
-const directionalLightHelper = new THREE.DirectionalLightHelper(
-  directionalLight
-)
-scene.add(directionalLightHelper)
+if (debug.enabled) {
+  const directionalLightHelper = new THREE.DirectionalLightHelper(
+    directionalLight
+  )
+  scene.add(directionalLightHelper)
+}
 
 /**
  * Sizes
