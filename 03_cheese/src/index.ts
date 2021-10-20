@@ -17,9 +17,10 @@ const debug = {
     displacementScale: 0.1,
   },
 }
-const gui = new dat.GUI({
-  closed: debug.enabled,
-})
+const gui = new dat.GUI()
+if (debug.enabled) {
+  gui.hide()
+}
 
 // Physics
 const world = new CANNON.World({
