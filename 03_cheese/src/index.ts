@@ -66,7 +66,9 @@ const renderFloor = () => {
   }
   floor = new THREE.Mesh(
     new THREE.PlaneGeometry(10, 10),
-    new THREE.MeshNormalMaterial()
+    new THREE.MeshNormalMaterial({
+      side: THREE.DoubleSide,
+    })
   )
   floor.receiveShadow = true
   floor.rotation.x = -Math.PI * 0.5
