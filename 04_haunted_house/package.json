@@ -1,0 +1,23 @@
+{
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "format:check": "prettier -c src",
+    "format:fix": "prettier -w src",
+    "build": "parcel build src/index.html",
+    "postbuild": "cp -r static dist"
+  },
+  "devDependencies": {
+    "@parcel/transformer-image": "2.0.0-rc.0",
+    "@types/dat.gui": "^0.7.7",
+    "@types/three": "^0.131.1",
+    "dat.gui": "^0.7.7",
+    "parcel": "^2.0.0-rc.0",
+    "prettier": "^2.4.1",
+    "serve-static": "^1.14.1"
+  },
+  "dependencies": {
+    "gsap": "^3.7.1",
+    "three": "^0.132.2"
+  }
+}
