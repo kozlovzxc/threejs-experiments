@@ -1,21 +1,12 @@
 import * as THREE from "three"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import fontUrl from "url:three/examples/fonts/helvetiker_regular.typeface.json"
-import * as dat from "dat.gui"
-import { TextureLoader } from "three"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+// @ts-ignore
+import { App } from "./components/app.component"
+import { renderComponent } from "./utils/component"
 
 /**
  * Base
  */
-// Debug
-const debug = {
-  floorColor: "#5e51b3",
-  ball: {
-    displacementScale: 0.1,
-  },
-}
-const gui = new dat.GUI()
 
 // Canvas
 const canvas = document.getElementById("webgl")
@@ -25,113 +16,6 @@ const scene = new THREE.Scene()
 
 const axesHelper = new THREE.AxesHelper(20)
 scene.add(axesHelper)
-
-const textureLoader = new TextureLoader()
-
-/**
- * Objects
- */
-// Floor
-let floor: THREE.Mesh
-const renderFloor = () => {
-  if (floor != null) {
-    scene.remove(floor)
-  }
-  floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(10, 10),
-    new THREE.MeshStandardMaterial({
-      color: debug.floorColor,
-      metalness: 0,
-      roughness: 0.5,
-    })
-  )
-  floor.receiveShadow = true
-  floor.rotation.x = -Math.PI * 0.5
-  scene.add(floor)
-}
-renderFloor()
-gui.addColor(debug, "floorColor").onFinishChange(renderFloor)
-
-// Ball
-const ballMap = textureLoader.load(
-  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_basecolor.jpg"
-)
-const ballAO = textureLoader.load(
-  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_ambientOcclusion.jpg"
-)
-const ballNormal = textureLoader.load(
-  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_normal.jpg"
-)
-const ballRoughness = textureLoader.load(
-  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_roughness.jpg"
-)
-const ballHeight = textureLoader.load(
-  "/static/textures/Flower_Bud_001_SD/Flower_Bud_001_height.png"
-)
-
-let ball: THREE.Mesh
-const renderBall = () => {
-  if (ball != null) {
-    scene.remove(ball)
-  }
-
-  const ballMaterial = new THREE.MeshStandardMaterial({
-    map: ballMap,
-    aoMap: ballAO,
-    normalMap: ballNormal,
-    normalScale: new THREE.Vector2(0.5, 0.5),
-    roughnessMap: ballRoughness,
-    displacementMap: ballHeight,
-    displacementScale: debug.ball.displacementScale,
-  })
-  const ballGeometry = new THREE.SphereGeometry(1, 100, 100)
-  ballGeometry.attributes.uv2 = ballGeometry.attributes.uv
-  ball = new THREE.Mesh(ballGeometry, ballMaterial)
-  ball.position.set(0, 1, 0)
-
-  scene.add(ball)
-}
-renderBall()
-gui
-  .add(debug.ball, "displacementScale")
-  .min(0)
-  .max(1)
-  .step(0.05)
-  .onFinishChange(renderBall)
-
-// Text
-let text: THREE.Mesh = undefined
-let renderText = () => {
-  if (text != null) {
-    scene.remove(text)
-  }
-  let geometry = new THREE.TextBufferGeometry("Hello", {
-    font,
-    size: 1,
-    height: 0.2,
-    curveSegments: 5,
-  })
-  geometry.center()
-  const textMaterial = new THREE.MeshNormalMaterial()
-  text = new THREE.Mesh(geometry, textMaterial)
-  text.position.set(0, 3, 0)
-  scene.add(text)
-}
-const fontLoader = new THREE.FontLoader()
-let font: THREE.Font
-fontLoader.load(fontUrl, (newFont) => {
-  font = newFont
-  renderText()
-})
-
-// Burger
-
-const gltfLoader = new GLTFLoader()
-gltfLoader.load("/static/models/burger.glb", (model) => {
-  const burger = model.scene
-  burger.position.set(2, 0, 0)
-  scene.add(model.scene)
-})
 
 /**
  * Lights
@@ -191,11 +75,21 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(0, 2, 7)
 scene.add(camera)
 
-// Controls
+/**
+ * Controls
+ */
 const controls = new OrbitControls(camera, canvas)
 controls.target.set(0, 0.75, 0)
 // Adds "weight" to camera movements
 controls.enableDamping = true
+
+/**
+ * App
+ */
+
+const app = new App()
+void renderComponent(app)
+scene.add(app)
 
 /**
  * Renderer
@@ -218,6 +112,8 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime()
   const deltaTime = elapsedTime - previousTime
   previousTime = elapsedTime
+
+  app._tick(elapsedTime, deltaTime)
 
   // Update controls
   controls.update()
